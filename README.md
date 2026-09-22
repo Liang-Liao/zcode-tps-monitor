@@ -6,7 +6,7 @@
 ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.5-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)
 
-**ZCode 会话级 Token 速率监控插件。** 每轮回复结束时自动显示**本轮即时** tok/s —— 数据直接读取 ZCode usage 数据库,非模型自述、非估算;另附实时监控大屏、斜杠命令、MCP 工具与可选的业务 TPS 监控。
+**ZCode 会话级 Token 速率监控插件。** 每轮回复结束时自动显示**本轮即时** tok/s —— 数据直接读取 ZCode usage 数据库,非模型自述、非估算。
 
 > 本仓库同时是一个 ZCode 本地插件市场(marketplace 名称:`tps-local-marketplace`),插件本体位于 [`plugins/zcode-tps-monitor/`](plugins/zcode-tps-monitor/README.md)。
 
@@ -30,12 +30,9 @@
 
 ## 功能特性
 
-- **真实 Token 速率注入(默认开启)** —— 每轮回复结束时自动显示本轮即时 tok/s(含思考 token)、首字延迟、输出 token 数、生成耗时、段数/峰值与会话累计
-- **实时监控大屏** —— `/zcode-tps-monitor:dashboard` 一键拉起,浏览器深色运维风格面板,秒级自动刷新;空闲 3 小时自动退出,不留后台进程
-- **斜杠命令** —— `/tps` 即时快照;`/tps 10` 采样观察 10 秒;`/tps-doctor` 环境自检
-- **MCP 工具** —— `tps_snapshot` / `tps_watch`,供 agent 程序化取数
-- **悬浮条(Windows)** —— 桌面常驻文字悬浮条,随时可见当前速率
-- **业务 TPS 监控(可选)** —— 配置 `metrics_url` 接入真实业务指标接口,或使用内置演示数据
+- **真实 Token 速率注入(默认开启)** —— 每轮回复结束时自动显示本轮即时 tok/s(含思考 token)、首字延迟、输出 token 数、生成耗时、段数/峰值与会话累计;下一轮提问时,上一轮速率作为上下文注入
+- **环境自检** —— `/tps-doctor` 逐项排查 Node 版本、usage 数据库、状态文件与配置,速率行不见了?一条命令定位
+- **纯本地运行** —— 只读 ZCode usage 数据库,无任何对外网络访问,无遥测、无外部依赖
 
 ## 安装
 
@@ -64,32 +61,12 @@
 
 | 场景 | 操作 |
 |---|---|
-| 查看每轮速率 | 无需操作,每轮回复结束时自动显示本轮即时速率 |
-| 即时快照 | 输入 `/tps`;或 `/tps 10` 持续采样 10 秒 |
-| 打开监控大屏 | 输入 `/zcode-tps-monitor:dashboard`,或手动 `node dashboard/server.mjs` |
-| 环境自检 | 速率行不见了?输入 `/tps-doctor` 逐项排查 |
+| 查看每轮速率 | 无需操作,每轮回复结束时自动显示本轮速率 |
 | 关闭本轮即时行 | `~/.zcode/tps-monitor.config.json` 写入 `{"stopHookLine": false}`,重开会话生效 |
 | 关闭全部速率注入 | 同文件写入 `{"tokenRateLine": false}`,重开会话生效 |
-| 桌面悬浮条 | 运行 `dashboard/overlay.ps1`(Windows) |
-| agent 取数 | MCP 工具 `tps_snapshot` / `tps_watch` |
+| 环境自检 | 输入 `/tps-doctor` 逐项排查 |
 
 要求 Node ≥ 22.5(需内置 `node:sqlite`,Windows / macOS / Linux 相同)。
-
-## 配置:接入业务 TPS(可选)
-
-插件默认提供演示数据;若要监控真实业务吞吐,在 **设置 → 插件管理 → zcode-tps-monitor** 中配置 `metrics_url`,指向任意返回 JSON 的指标接口。字段自动兼容(支持最多三层嵌套):
-
-| 指标 | 识别的字段名 |
-|---|---|
-| 吞吐 | `tps` / `qps` / `throughput` / `transactionsPerSecond` |
-| 延迟 | `p50` / `p95` / `p99`(或 `latency_p50` 等) |
-| 错误率 | `error_rate` / `errorRate` / `err_rate` |
-
-示例接口返回:
-
-```json
-{"data":{"tps":1240,"p50":11,"p95":28,"p99":46,"error_rate":0.05}}
-```
 
 ## 工作原理
 
@@ -113,17 +90,12 @@ systemMessage 直接显示本轮速率行
 - **SessionStart 钩子**:会话启动时记录当前会话 ID 并注入使用提示
 - **UserPromptSubmit 钩子**:每轮触发一次,单次为毫秒级数据库读取,开销可忽略;此刻本轮尚未发生,因此只注入上一轮数据作上下文
 - **Stop 钩子**:回复刚结束、本轮数据已完整入库的瞬间触发,按 `turn_id` 精确圈定本轮(一次用户消息触发的全部请求,含多段工具调用),经 `systemMessage` 由客户端直接显示——无需模型转发,天然零滞后
-- Token 速率与业务 TPS 相互独立:前者始终来自 ZCode 真实数据,后者取决于是否配置 `metrics_url`
 
 ## 常见问题
 
-**Q:可以在 OpenCode / Codex / Claude Code 等其他工具中使用吗?**
-
-A:插件机制、钩子与数据源均绑定 ZCode,token 速率功能是 ZCode 专属;其中业务 TPS 采集脚本与大屏是独立程序,可脱离 ZCode 运行,但离开 ZCode 没有速率数据来源。
-
 **Q:显示的速率准确吗?**
 
-A:速率由 ZCode usage 数据库中的真实 token 累计值计算得出,口径为模型输出侧 token。注意:行在发送消息瞬间采样,显示的是上一条已完成回复的速率;当前回复的速率会在下一轮显示,`/tps` 命令与监控大屏则是即时的。与其他工具显示的统计数字可能因统计窗口不同而略有差异。
+A:速率由 ZCode usage 数据库中的真实 token 累计值计算得出,口径为模型输出侧 token。注意:行在发送消息瞬间采样,显示的是上一条已完成回复的速率;当前回复的速率会在下一轮显示。与其他工具显示的统计数字可能因统计窗口不同而略有差异。
 
 **Q:速率行突然不见了?**
 
@@ -131,11 +103,11 @@ A:运行 `/tps-doctor` 自检。常见原因:Node 版本低于 22.5(需内置 `n
 
 **Q:macOS / Linux 支持吗?**
 
-A:支持。钩子、命令、大屏、MCP 均为跨平台 Node 实现;usage 数据库路径按用户主目录自动解析(`~/.zcode/cli/db/db.sqlite`),特殊安装位置可用 `ZCODE_USAGE_DB` 环境变量覆盖。唯一例外是桌面悬浮条 `overlay.ps1`,它依赖 Windows API,仅限 Windows(macOS 用户用监控大屏即可)。
+A:支持。钩子、命令均为跨平台 Node 实现;usage 数据库路径按用户主目录自动解析(`~/.zcode/cli/db/db.sqlite`),特殊安装位置可用 `ZCODE_USAGE_DB` 环境变量覆盖。
 
-**Q:演示数据怎么关掉?**
+**Q:插件会联网吗?**
 
-A:演示数据只影响"业务 TPS"部分(Token 速率始终真实);不配置 `metrics_url` 即为演示模式,配置后自动切换为真实数据源。
+A:不会。插件只读取本机 usage 数据库(只读)并在本地生成速率行,没有任何对外网络请求。
 
 ## License
 

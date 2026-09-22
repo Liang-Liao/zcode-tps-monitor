@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.2.1 — 2026-09-22
+
+### 变更:能力收敛为「真实 Token 速率注入」单功能 + 数据安全加固
+
+- **移除自动触发技能**:删除 `skills/` 目录;两份插件清单(`.zcode-plugin` / `.claude-plugin`)同步移除 `skills` 字段;命令文档中「技能 base directory」措辞改为按命令文件目录定位。
+- **移除旁支功能**:删除实时大屏与 Windows 悬浮条(`dashboard/` 整个目录)、MCP 工具(`tps_snapshot` / `tps_watch`,含 `mcp/tps-server.mjs` 与 `.mcp.json`)、`/tps` 与 `/zcode-tps-monitor:dashboard` 斜杠命令、业务 TPS 采集(`scripts/collect.mjs`、`scripts/lib/collect-core.mjs`)及两份清单中的 `userConfig.metrics_url` 配置项。保留:Stop 钩子本轮即时速率行、UserPromptSubmit 速率上下文注入、SessionStart 提示、`/tps-doctor` 自检(移除「大屏进程」检查项,大屏已删除)。
+- **数据安全**:
+  - `marketplace.json` 的 `icon`(此前指向 jsdelivr CDN)清空,图标仅保留在仓库 README 内展示。
+  - 插件运行期**零外联**:此前唯一网络出口为用户显式配置的 `metrics_url`(GET,不上传任何本地数据),已随采集代码整体删除;usage 数据库全程只读打开,无遥测、无 CDN 引用。
+
 ## 0.8.2 — 2026-09-12
 
 ### 修复:每条回复显示「本问」统计,不再出现「上轮」

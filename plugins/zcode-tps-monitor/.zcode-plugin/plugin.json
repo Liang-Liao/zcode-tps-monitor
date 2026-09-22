@@ -1,10 +1,10 @@
 {
   "name": "zcode-tps-monitor",
-  "version": "0.8.2",
-  "description": "Token output-rate monitor for ZCode: shows real instant tokens/sec (from ZCode usage DB) for the just-finished turn via a Stop hook, a /tps command, MCP tools, and a real-time dashboard; also supports service-TPS monitoring via a configurable metrics URL or demo data.",
+  "version": "0.8.2.1",
+  "description": "Real per-turn Token output-rate monitor for ZCode: reads the ZCode usage database and shows the just-finished turn's instant tokens/sec (incl. thinking tokens, TTFT, peak) via a Stop hook, with the previous turn's rate injected as context; includes a /tps-doctor self-check. Fully local, no network access.",
   "description_i18n": {
-    "en": "TPS throughput monitor: /tps command and MCP tools to snapshot TPS, latency percentiles, error rate, and local system resources. Supports a real metrics URL or built-in demo data.",
-    "zh-CN": "ZCode Token 输出速率监控：每轮回复结束时自动显示本轮即时 tok/s（读取 ZCode usage 数据库），另有 /tps 命令、MCP 工具与实时大屏；同时支持业务 TPS 监控（可配置指标接口或演示数据）。"
+    "en": "Real per-turn Token output-rate monitor for ZCode: shows the just-finished turn's instant tokens/sec (from the ZCode usage DB) via a Stop hook, plus a /tps-doctor self-check. Fully local, no network access.",
+    "zh-CN": "ZCode 真实 Token 输出速率监控:每轮回复结束自动显示本轮即时 tok/s(含思考 token、首字延迟、峰值),数据直接读取 ZCode usage 数据库;附 /tps-doctor 环境自检。纯本地运行,无任何对外访问。"
   },
   "author": {
     "name": "Administrator"
@@ -17,14 +17,5 @@
     "performance",
     "throughput"
   ],
-  "commands": "commands",
-  "skills": "skills",
-  "userConfig": {
-    "metrics_url": {
-      "title": "Metrics URL",
-      "description": "HTTP 接口地址，返回包含 tps/qps 字段的 JSON；留空则使用演示数据。",
-      "type": "string",
-      "required": false
-    }
-  }
+  "commands": "commands"
 }

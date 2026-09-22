@@ -8,12 +8,12 @@
     {
       "name": "zcode-tps-monitor",
       "source": "./plugins/zcode-tps-monitor",
-      "description": "TPS 吞吐监控:每轮回复结束显示本轮即时速率 + 实时监控大屏 + /tps 命令 + MCP 工具;支持配置真实指标接口或使用演示数据。",
-      "version": "0.8.2",
+      "description": "ZCode 真实 Token 输出速率监控:每轮回复结束自动显示本轮即时 tok/s(含思考 token、首字延迟、峰值),数据直接读取 ZCode usage 数据库;附 /tps-doctor 环境自检。纯本地运行,无任何对外访问。",
+      "version": "0.8.2.1",
       "author": {
         "name": "Administrator"
       },
-      "icon": "https://gcore.jsdelivr.net/gh/shy3130/zcode-tps-monitor@29f1a35/assets/icon.png",
+      "icon": "",
       "category": "monitoring",
       "keywords": [
         "tps",

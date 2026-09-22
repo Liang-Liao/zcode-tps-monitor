@@ -33,8 +33,8 @@ if (sid) {
 // stopHookLine===false 时回到旧行为,才需要模型在回复末尾转发(上轮数据)。
 const legacyQuote = readConfig().stopHookLine === false;
 const hint = legacyQuote
-  ? "[zcode-tps-monitor] 已就绪。每轮用户消息都会注入【token 速率】行(真实,来自 usage 库;显示的是上一轮),请在每条回复末尾原样附上「⚡」开头的整行。命令:/tps(快照)、/tps-doctor(自检)。大屏:dashboard/server.mjs(http://127.0.0.1:7423);悬浮条(仅 Windows):dashboard/overlay.ps1;关闭速率行:~/.zcode/tps-monitor.config.json → {\"tokenRateLine\":false}。"
-  : "[zcode-tps-monitor] 已就绪。每轮回复结束时,本轮即时 token 速率(真实,来自 usage 库)会由 Stop 钩子自动显示给用户,无需在回复末尾转发速率行。命令:/tps(快照)、/tps-doctor(自检)。大屏:dashboard/server.mjs(http://127.0.0.1:7423);关闭:~/.zcode/tps-monitor.config.json → {\"tokenRateLine\":false} 或 {\"stopHookLine\":false}。";
+  ? "[zcode-tps-monitor] 已就绪。每轮用户消息都会注入【token 速率】行(真实,来自 usage 库;显示的是上一轮),请在每条回复末尾原样附上「⚡」开头的整行。自检:/tps-doctor。关闭速率行:~/.zcode/tps-monitor.config.json → {\"tokenRateLine\":false}。"
+  : "[zcode-tps-monitor] 已就绪。每轮回复结束时,本轮即时 token 速率(真实,来自 usage 库)会由 Stop 钩子自动显示给用户,无需在回复末尾转发速率行。自检:/tps-doctor;关闭:~/.zcode/tps-monitor.config.json → {\"tokenRateLine\":false} 或 {\"stopHookLine\":false}。";
 
 process.stdout.write(
   JSON.stringify({
