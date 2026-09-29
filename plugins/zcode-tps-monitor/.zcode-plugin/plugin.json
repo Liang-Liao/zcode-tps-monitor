@@ -1,10 +1,10 @@
 {
   "name": "zcode-tps-monitor",
-  "version": "0.8.2.1",
-  "description": "Real per-turn Token output-rate monitor for ZCode: reads the ZCode usage database and shows the just-finished turn's instant tokens/sec (incl. thinking tokens, TTFT, peak) via a Stop hook, with the previous turn's rate injected as context; includes a /tps-doctor self-check. Fully local, no network access.",
+  "version": "0.8.3.1",
+  "description": "Real per-turn Token output-rate monitor for ZCode: reads the ZCode usage database and, at reply wrap-up, the model self-tests and quotes the current question's instant tokens/sec (incl. thinking tokens, TTFT, peak); the previous turn's rate is injected as internal context; includes a /tps-doctor self-check. Fully local, no network access.",
   "description_i18n": {
-    "en": "Real per-turn Token output-rate monitor for ZCode: shows the just-finished turn's instant tokens/sec (from the ZCode usage DB) via a Stop hook, plus a /tps-doctor self-check. Fully local, no network access.",
-    "zh-CN": "ZCode 真实 Token 输出速率监控:每轮回复结束自动显示本轮即时 tok/s(含思考 token、首字延迟、峰值),数据直接读取 ZCode usage 数据库;附 /tps-doctor 环境自检。纯本地运行,无任何对外访问。"
+    "en": "Real per-turn Token output-rate monitor for ZCode: the model self-tests the current question's instant tokens/sec (from the ZCode usage DB) at reply wrap-up, plus a /tps-doctor self-check. Fully local, no network access.",
+    "zh-CN": "ZCode 真实 Token 输出速率监控:每问回复收尾自测本问即时 tok/s(含思考 token、首字延迟、峰值)并引用在回复末尾,数据直接读取 ZCode usage 数据库;附 /tps-doctor 环境自检。纯本地运行,无任何对外访问。"
   },
   "author": {
     "name": "Administrator"
