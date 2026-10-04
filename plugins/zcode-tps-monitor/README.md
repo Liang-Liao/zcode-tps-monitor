@@ -15,7 +15,7 @@
 | 斜杠命令 | `/zcode-tps-monitor:tps` | 即时快照;`/zcode-tps-monitor:tps 10` 采样观察 10 秒 |
 | 技能 | `zcode-tps-monitor` | 用户询问速率/TPS 相关问题时自动触发 |
 | MCP 工具 | `tps_snapshot` / `tps_watch` | stdio MCP server(`mcp/tps-server.mjs`),供 agent 程序化取数 |
-| Stop 钩子(兼容保留) | `hooks/stop.mjs` | 当前客户端版本不触发 Stop 事件;未来支持后可自动在回复结束瞬间显示本问速率 |
+| Stop 钩子(实验) | `hooks/stop.mjs` | 客户端现已触发 Stop 事件,但时机不定(观察到轮次进行中触发);默认仅维护状态文件且不覆盖提问时间戳;`{"stopHookLine": true}` 可开启直显(每轮一次) |
 
 ## 数据源
 
@@ -87,7 +87,7 @@ zcode-tps-monitor/
 ├── hooks/hooks.json            # 钩子注册(SessionStart + UserPromptSubmit + Stop)
 ├── hooks/session-start.mjs     # 会话启动:记录会话 ID + 使用提示
 ├── hooks/prompt-submit.mjs     # 每轮:记录提问时刻 + 注入上一轮参考 + 本问统计指令
-├── hooks/stop.mjs              # 兼容保留:当前客户端不触发 Stop 事件
+├── hooks/stop.mjs              # 客户端现已触发;维护状态文件(保留 promptTs),直显默认关
 ├── mcp/tps-server.mjs          # stdio MCP server
 ├── dashboard/
 │   ├── server.mjs              # HTTP 服务(页面 + /api/metrics)

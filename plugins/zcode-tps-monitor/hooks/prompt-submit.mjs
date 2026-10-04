@@ -22,9 +22,11 @@ if (sid) {
   try {
     const file = path.join(os.homedir(), ".zcode", "tps-monitor.last-session.json");
     fs.mkdirSync(path.dirname(file), { recursive: true });
+    const now = Date.now();
     fs.writeFileSync(
       file,
-      JSON.stringify({ sessionId: sid, ts: Date.now(), source: "prompt-submit" })
+      // promptTs:本次提问时刻,--current 守卫的唯一依据;Stop 钩子触发时会保留它而非覆盖
+      JSON.stringify({ sessionId: sid, ts: now, promptTs: now, source: "prompt-submit" })
     );
   } catch {}
 }

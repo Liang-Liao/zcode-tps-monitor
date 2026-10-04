@@ -16,9 +16,10 @@ if (sid) {
   try {
     const file = path.join(os.homedir(), ".zcode", "tps-monitor.last-session.json");
     fs.mkdirSync(path.dirname(file), { recursive: true });
+    const now = Date.now();
     fs.writeFileSync(
       file,
-      JSON.stringify({ sessionId: sid, ts: Date.now(), source: "session-start" })
+      JSON.stringify({ sessionId: sid, ts: now, promptTs: now, source: "session-start" })
     );
   } catch {}
 }

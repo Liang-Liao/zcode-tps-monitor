@@ -116,14 +116,14 @@ function configCheck() {
   try {
     const cfg = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
     const off = cfg.tokenRateLine === false;
-    const deprecated = cfg.stopHookLine !== undefined;
+    const direct = cfg.stopHookLine === true;
     return {
       name: "配置文件",
       ok: true,
       detail:
         off
           ? "tokenRateLine=false,速率行注入已关闭(属预期)"
-          : "已读取,注入开启" + (deprecated ? ";stopHookLine 自 0.8.3 起已废弃,可删除" : ""),
+          : "已读取,注入开启" + (direct ? ";stopHookLine=true,Stop 直显实验开启" : ""),
       hint: off ? "如需恢复注入,删除该文件或改回 true" : null,
     };
   } catch {
