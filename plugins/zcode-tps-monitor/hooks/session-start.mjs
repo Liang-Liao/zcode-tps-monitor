@@ -16,20 +16,20 @@ if (sid) {
   try {
     const file = path.join(os.homedir(), ".zcode", "tps-monitor.last-session.json");
     fs.mkdirSync(path.dirname(file), { recursive: true });
+    const now = Date.now();
     fs.writeFileSync(
       file,
-      JSON.stringify({ sessionId: sid, ts: Date.now(), source: "session-start" })
+      JSON.stringify({ sessionId: sid, ts: now, promptTs: now, source: "session-start" })
     );
   } catch {}
 }
 
-// 与 prompt-submit 的「本问统计」机制保持一致:回复收尾时模型自测本问速率
-// (--turn --current 有守卫,纯问答轮不输出、绝不显示上一轮)。
-// 注意不要写"速率会自动显示/无需转发"——当前客户端版本不触发 Stop 钩子,
-// 那类表述会让模型收尾时什么都不做。
+// 与 prompt-submit 的「本问统计」机制保持一致:先自测、再写正文,统计行与正文同条。
+// 关键是防折叠:客户端把带工具调用的消息折叠进「模型轨迹」区,若模型写完正文后
+// 补跑脚本、让统计行单独成条,用户就只能看到一行统计(正文被收起)。
 const hint = [
-  `[zcode-tps-monitor] 已就绪。每条回复收尾时(若该回复调用过工具)运行一次:node "${RATE_SCRIPT}" --turn --current,`,
-  "把输出的一行原样放入 Markdown 引用块(行首加「> 」)贴在回复最末尾;脚本没有输出(如纯问答)则不显示任何统计行。",
+  `[zcode-tps-monitor] 已就绪。每条回复收尾时(若该回复调用过工具):先运行 node "${RATE_SCRIPT}" --turn --current,再输出完整回复正文,并把输出的一行原样放入 Markdown 引用块附在这条回复的最末尾;脚本没有输出(如纯问答)则不显示任何统计行。`,
+  "统计行必须与回复正文同处最后一条消息:绝不能在正文写完后再补调用工具,也不能让统计行单独成条(客户端会折叠带工具的消息,用户将只看到一行统计)。",
   "上下文里【内部背景·勿展示】的历史速率行仅供了解背景,绝不展示给用户。",
   "自检:/tps-doctor;关闭注入:~/.zcode/tps-monitor.config.json → {\"tokenRateLine\":false}。",
 ].join("");

@@ -160,11 +160,13 @@ function latestTurnId(db, sid) {
   }
 }
 
-// 最近一次用户提问的时间戳(prompt-submit 钩子写入);--current 守卫用:
-// 最新 turn 的所有行都早于它,说明本问尚未产生任何模型请求(纯问答轮),不得当作"本问"统计。
+// 最近一次用户提问的时间戳(prompt-submit/session-start 钩子写入 promptTs;Stop 钩子
+// 会更新 ts 但保留 promptTs);--current 守卫用:最新 turn 的所有行都早于提问时刻,
+// 说明本问尚未产生任何模型请求(纯问答轮),不得当作"本问"统计。
 function lastPromptTs() {
   const st = readState();
-  return st && Number.isFinite(st.ts) ? st.ts : null;
+  const ts = st ? (Number.isFinite(st.promptTs) ? st.promptTs : st.ts) : null;
+  return Number.isFinite(ts) ? ts : null;
 }
 
 function queryTurn(sessionId, opts = {}) {

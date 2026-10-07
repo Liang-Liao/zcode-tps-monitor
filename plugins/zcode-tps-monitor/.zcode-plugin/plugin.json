@@ -1,6 +1,6 @@
 {
   "name": "zcode-tps-monitor",
-  "version": "0.8.3.1",
+  "version": "0.8.5.1",
   "description": "Real per-turn Token output-rate monitor for ZCode: reads the ZCode usage database and, at reply wrap-up, the model self-tests and quotes the current question's instant tokens/sec (incl. thinking tokens, TTFT, peak); the previous turn's rate is injected as internal context; includes a /tps-doctor self-check. Fully local, no network access.",
   "description_i18n": {
     "en": "Real per-turn Token output-rate monitor for ZCode: the model self-tests the current question's instant tokens/sec (from the ZCode usage DB) at reply wrap-up, plus a /tps-doctor self-check. Fully local, no network access.",

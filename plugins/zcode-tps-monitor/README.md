@@ -7,8 +7,9 @@
 | 形态 | 入口 | 说明 |
 |---|---|---|
 | 本问即时速率 | 模型收尾自测 | 回复收尾时模型按注入指令运行 `scripts/token-rate.mjs --turn --current`,把本问即时速率行引用在回复末尾;`--current` 守卫保证纯问答轮不输出、绝不拿上一轮冒充 |
-| 上下文注入 | `hooks/prompt-submit.mjs` | 每轮对话读取 ZCode usage 数据库,注入上一轮速率作【内部背景·勿展示】上下文,并附「本问统计」指令;`{"tokenRateLine": false}` 可关闭 |
+| 上下文注入 | `hooks/prompt-submit.mjs` | 每轮记录提问时刻(promptTs,守卫依据),注入上一轮速率作【内部背景·勿展示】上下文,并附「本问统计」指令;`{"tokenRateLine": false}` 可关闭 |
 | 会话提示 | `hooks/session-start.mjs` | 会话启动时记录会话 ID,并注入一行使用提示 |
+| Stop 钩子(实验) | `hooks/stop.mjs` | 客户端现已触发 Stop 事件,但时机不定(观察到轮次进行中触发);默认仅维护状态文件且不覆盖提问时间戳;`{"stopHookLine": true}` 可开启直显(每轮一次) |
 | 自检 | `/tps-doctor`(`scripts/doctor.mjs`) | 检查 Node 版本、数据库与表结构、状态/配置文件;`--json` 可编程消费 |
 
 ## 数据源
@@ -53,8 +54,8 @@ zcode-tps-monitor/
 ├── commands/tps-doctor.md      # /zcode-tps-monitor:tps-doctor
 ├── hooks/hooks.json            # 钩子注册(SessionStart + UserPromptSubmit + Stop)
 ├── hooks/session-start.mjs     # 会话启动:记录会话 ID + 使用提示
-├── hooks/prompt-submit.mjs     # 每轮:注入上一轮速率作背景 + 本问统计指令
-├── hooks/stop.mjs              # 兼容保留(当前客户端不触发;本问速率由模型收尾自测显示)
+├── hooks/prompt-submit.mjs     # 每轮:记录提问时刻 + 注入上一轮速率作背景 + 本问统计指令
+├── hooks/stop.mjs              # 客户端现已触发;维护状态文件(保留 promptTs),直显默认关
 ├── scripts/
 │   ├── token-rate.mjs          # token 速率 CLI(人类可读 / --json)
 │   └── doctor.mjs              # 自检(人类可读 / --json)

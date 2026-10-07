@@ -142,6 +142,23 @@ test("--current 守卫:本问已有入库数据 → 正常返回", () => {
   assert.equal(r.turn.tokPerSec, 187.5);
 });
 
+test("--current 守卫:Stop 钩子更新过状态文件后,仍以 promptTs(提问时刻)为准", () => {
+  // 2026-10-04 实测事故:客户端在轮次进行中触发 Stop,stop.mjs 把 ts 改写成触发时刻,
+  // 守卫误判"本问无数据"。修复后 promptTs 保留提问时刻,守卫只认它。
+  fs.writeFileSync(
+    process.env.TPS_MONITOR_STATE_FILE,
+    JSON.stringify({
+      sessionId: "s1",
+      ts: Date.now() + 60000,        // Stop 触发时刻被写到了很晚(晚于全部数据)
+      promptTs: Date.now() - 55000,  // 提问时刻早于本问数据 → 守卫应放行
+      source: "stop",
+    })
+  );
+  const r = queryTurn("s1", { current: true });
+  assert.equal(r.noCurrentTurnData, undefined);
+  assert.equal(r.turn.tokPerSec, 187.5);
+});
+
 test("无显式会话时优先状态文件里的会话(而非全局最近完成请求)", () => {
   fs.writeFileSync(
     process.env.TPS_MONITOR_STATE_FILE,

@@ -6,7 +6,7 @@
 ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.5-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)
 
-**ZCode 会话级 Token 速率监控插件。** 每问回复收尾时自测并显示**本问即时** tok/s —— 数据直接读取 ZCode usage 数据库,非模型自述、非估算。
+**ZCode 会话级 Token 速率监控插件。** 每条**调用了工具**的回答,末尾都会附一行**本问**(本次提问)的即时 tok/s 统计——数据直接读取 ZCode usage 数据库,非模型自述、非估算,且有守卫保证**绝不显示上一轮**。
 
 > 本仓库同时是一个 ZCode 本地插件市场(marketplace 名称:`tps-local-marketplace`),插件本体位于 [`plugins/zcode-tps-monitor/`](plugins/zcode-tps-monitor/README.md)。
 
@@ -63,6 +63,7 @@
 |---|---|
 | 查看每问速率 | 回复收尾时模型自动统计本问速率并引用在回复末尾(该回复调用过工具才有) |
 | 关闭全部速率注入 | `~/.zcode/tps-monitor.config.json` 写入 `{"tokenRateLine": false}`,重开会话生效 |
+| 实验性 Stop 直显 | 同文件写入 `{"stopHookLine": true}` 开启回复结束直显(每个轮次最多一次) |
 | 环境自检 | 输入 `/tps-doctor` 逐项排查 |
 
 要求 Node ≥ 22.5(需内置 `node:sqlite`,Windows / macOS / Linux 相同)。
@@ -74,22 +75,24 @@
    │
    ▼
 UserPromptSubmit 钩子
-   │  读取 ZCode usage 数据库,以上一条回复的速率作为
+   │  记录提问时刻到状态文件;读取 usage 库,以上一条回复的速率作为
    │  【内部背景·勿展示】上下文注入,并附「本问统计」指令
    ▼
 模型回复(工具调用 × N 段,各段按 turn_id 实时入库)
    │
    ▼
-回复收尾(模型按指令运行 token-rate.mjs --turn --current)
-   │  --current 守卫:本问尚无入库数据(纯问答轮)则输出为空,
-   │  绝不把上一轮数据当作本问
+回复收尾(输出最终总结之前)
+   │  模型运行 token-rate.mjs --turn --current:
+   │  --current 守卫比对本问数据与提问时刻,本问尚无入库数据(纯问答轮)
+   │  则输出为空,绝不把上一轮数据当作本问
    ▼
-把输出的一行以引用块附在回复最末尾
+把统计行放入 Markdown 引用块,附在回复最末尾
 ```
 
 - **SessionStart 钩子**:会话启动时记录当前会话 ID 并注入使用提示
 - **UserPromptSubmit 钩子**:每轮触发一次,单次为毫秒级数据库读取,开销可忽略;此刻本问尚未发生,因此只注入上一轮数据作背景(带【内部背景·勿展示】前缀,模型绝不展示)
-- **Stop 钩子**:兼容保留,当前客户端版本不触发——本问速率由模型收尾自测显示(见上图)
+- **收尾自测(`--turn --current`)**:本问的各段请求在回答过程中已实时入库,收尾时统计即为完整的本问数据;`--current` 守卫把状态文件里的提问时刻与本问数据比对,本问尚无入库数据(纯问答轮)时输出为空——**结构上杜绝了"显示上一轮"**
+- **Stop 钩子(实验)**:客户端现已触发 Stop 事件,但时机不定(曾观察到用户轮次进行中触发),因此默认只维护状态文件、绝不覆盖提问时间戳;配置 `{"stopHookLine": true}` 可实验性开启回复结束直显(每个轮次最多一次)
 
 ## 常见问题
 

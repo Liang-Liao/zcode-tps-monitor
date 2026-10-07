@@ -9,7 +9,7 @@
       "name": "zcode-tps-monitor",
       "source": "./plugins/zcode-tps-monitor",
       "description": "ZCode 真实 Token 输出速率监控:每问回复收尾自测本问即时 tok/s(含思考 token、首字延迟、峰值)并引用在回复末尾,数据直接读取 ZCode usage 数据库;附 /tps-doctor 环境自检。纯本地运行,无任何对外访问。",
-      "version": "0.8.3.1",
+      "version": "0.8.5.1",
       "author": {
         "name": "Administrator"
       },
